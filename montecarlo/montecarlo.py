@@ -1,3 +1,8 @@
+import numpy as np
+import pandas as pd
+from numbers import Number
+# import random as rn
+
 class Die:
     '''
 -   A die has N sides, or “faces”, and W weights, and can be rolled
@@ -21,7 +26,7 @@ class Die:
 
 -   The die has one behavior, which is to be rolled one or more times.
     '''
-    def __init__(self, sides, weights):
+    def __init__(self, sides):
         '''
     -   Takes a NumPy array of faces as an argument. Throws a `TypeError` if
         not a NumPy array.
@@ -36,8 +41,18 @@ class Die:
     -   Saves both faces and weights in a private data frame with faces in
         the index.
         '''
-         
-        pass
+        try:
+            if not isinstance(sides, np.ndarray):
+                raise TypeError('Not an array')
+            # if not (isinstance(sides.dtype.type, np.str_) or isinstance(sides.dtype.type, np.number)):
+            #     raise TypeError('Sides not strings or numbers')
+            if len(set(sides)) != len(sides):
+                raise ValueError('Faces must be unique')
+            
+            self.weight = np.ones(len(sides))
+            self._data = pd.DataFrame(data= self.weight, index= sides)
+        except (TypeError, ValueError) as e:
+            print('Error: ', e) 
 
     def adj_wt(self, face, wt):
         '''
@@ -51,10 +66,18 @@ class Die:
         (integer or float) or castable as numeric. If not, raises a
         `TypeError`.
         '''
+        try:
+            if face not in self._data.index:
+                raise IndexError('Invalid face')
+            elif not isinstance(wt, Number):
+                raise TypeError('Invalid reassignment weight')
+            else:
+                self._data.loc[face] = wt
 
-        pass
+        except (IndexError, TypeError) as e:
+            print('Error: ', e)
 
-    def roll(self, n):
+    def roll(self, n = 1):
         '''
     -   Takes a parameter of how many times the die is to be rolled;
         defaults to $1$.
@@ -66,13 +89,14 @@ class Die:
 
     -   Does not store internally these results.
         '''
-        pass
+        roll = self._data.sample(weights=self._data[0], n=n, replace= True).index.to_list()
+        return roll
 
     def get_state(self):
         '''
     -   Returns a copy of the private die data frame.
         '''
-        pass
+        return self._data
 
 class Game:
     '''
@@ -101,10 +125,9 @@ class Game:
         and that they all have the same faces, but this is not required for
         this project.
         '''
+        self._dice_set = dice_list
 
-        pass
-
-    def play(self, i):
+    def play(self, i = 1):
         '''
     -   Takes an integer parameter to specify how many times the dice should
         be rolled.
@@ -116,8 +139,18 @@ class Game:
         as the column name), and the face rolled in that instance in each
         cell.
         '''
-
-        pass
+        ls = []
+        for d in self._dice_set:
+            ls.append(d.roll(i))
+        # self._result_frame = pd.DataFrame([d.roll(i) for d in self._dice_set]).T
+        self._result_frame = pd.DataFrame(ls)
+        self._result_frame = self._result_frame.T
+        # print([i for i in range(1, len(self._result_frame.index)+1)])
+        self._result_frame.index = [i for i in range(1, len(self._result_frame.index)+1)]
+        self._result_frame.columns = [j for j in range(1, len(self._result_frame.columns)+1)]
+        self._result_frame.index.name = 'roll #'
+        self._result_frame.rename_axis('die #', axis='columns', inplace=True)
+        return self._result_frame
 
     def last_play(self, width = 'WIDE'):
         '''
@@ -134,21 +167,27 @@ class Game:
     -   This method should raise a `ValueError` if the user passes an
         invalid option for narrow or wide.
         '''
-
-        pass
+        if width.upper() == 'WIDE':
+            return self._result_frame
+        elif width.upper() == 'NARROW':
+            return self._result_frame.stack().to_frame('outcome')
+        else:
+            raise ValueError('Invalid width selection. Must be "narrow" or "wide"')
 
 class Analyzer:
     '''
 -   An Analyzer object takes the results of a single game and computes
     various descriptive statistical properties about it.'''
 
-    def __init__(self, game_state):
+    def __init__(self, game_obj):
         '''
     -   Takes a game object as its input parameter. Throw a `ValueError` if
         the passed value is not a Game object.
         '''
-
-        pass
+        if not isinstance(game_obj, Game):
+            raise ValueError('Argument passed was not a Game obj.')
+        else:
+            self._game = game_obj
 
     def jackpot(self):
         '''
@@ -159,20 +198,48 @@ class Analyzer:
 
     -   Returns an integer for the number of jackpots.
         '''
+        wins = 0
+        multi_fr = self._game.last_play('wide')
+        # print(next(multi_fr.iterrows())[1]) 
+        
+        # iterrows returns list of tuples so next()[1][1] 
+        # returns first row of subframe corresponding to iteration
+        # ie next(is a tuple)[accessing index of tuple][accessing row of subframe]
+        
+        if isinstance(multi_fr.index, pd.MultiIndex):
+            for i in multi_fr.index.get_level_values(0).unique():
+                outcomes = multi_fr.loc[i,'outcome']
+                if outcomes.value_counts().iloc[0]==len(outcomes):
+                    wins+=1
+        else:
+            for ind, row in multi_fr.iterrows():
+                if row.value_counts().iloc[0] == len(row):
+                    wins+=1
 
-        pass
+            
+        return wins
 
     def face_roll(self):
         '''
-    -   Computes how many times a given face is rolled in each event. For example, if a roll of five dice has all sixes, then the counts for this roll would be $5$ for the face value `6` and $0$ for the other faces.
+    -   Computes how many times a given face is rolled in each event. For example, 
+        if a roll of five dice has all sixes, then the counts for this roll 
+        would be $5$ for the face value `6` and $0$ for the other faces.
 
     -   Returns a data frame of results.
 
     -   The data frame has an index of the roll number, face values as
         columns, and count values in the cells (i.e. it is in wide format).
         '''
-
-        pass
+        df = self._game.last_play('narrow')
+        catf = pd.DataFrame()
+        for i in df.index.get_level_values(0).unique():
+                fs = df.loc[i]
+                ff = fs.value_counts().to_frame().T
+                ff.index = [i]
+                catf = pd.concat([catf, ff])
+        catf.rename_axis('roll #', inplace=True)
+        catf.fillna(0, inplace=True)
+        return catf
 
     def combo_count(self):
         '''
@@ -186,8 +253,17 @@ class Analyzer:
     -   The data frame should have an MultiIndex of distinct combinations
         and a column for the associated counts.
         '''
-
-        pass
+        pf = self._game.last_play()
+        # df = {
+        #     1:['a','b','b'],
+        #     2:['a','b','b'],
+        #     3:['a','b','b']
+        # }
+        # pf = pd.DataFrame(df)
+        ff = pf.apply(lambda x: tuple(sorted(x)), axis=1).value_counts()
+        ff.index = pd.MultiIndex.from_tuples(ff.index)
+        ff = ff.reset_index(name='count')
+        return ff
 
     def perm_count(self):
         '''
@@ -202,5 +278,16 @@ class Analyzer:
         and a column for the associated counts.
         '''
 
-        pass
+        pf = self._game.last_play()
+        # df = {
+        #     1:['a','b','a'],
+        #     2:['a','a','b'],
+        #     3:['b','a','b']
+        # }
+        # pf = pd.DataFrame(df)
+        # print('\n', pf)
+        ff = pf.apply(lambda x: tuple(x), axis=1).value_counts()
+        ff.index = pd.MultiIndex.from_tuples(ff.index)
+        ff = ff.reset_index(name='count')
+        return ff
 
