@@ -43,8 +43,19 @@ combination_data = yahtzee_analysis.combo_count()
 ```
 
 # API description
-## Die
-- Die 
+## `Die`
+`__init__(self, sides)`
+- `Die` takes an array and raises errors if the argument passed is not a
+NumPy array or if the faces are not unique.
+- The returned `Die` object has faces with default weights of 1.
+
+`adj_wt(self, face, wt)`
+- Adjusts the weight of the selected face with the argument
+passed. This will result in an error if the value passed is not a
+floating point number. This returns `None`
+
+`roll(self, n = 1)`
+- Generates and returns a Python list of outcomes
 
 
 
