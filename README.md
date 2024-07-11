@@ -53,7 +53,7 @@ not a NumPy `array` or if the faces are not unique.
 `adj_wt(self, face, wt)`
 - Adjusts the weight of the selected face with the argument
 passed. This will result in an error if the value passed is not a
-floating point number. This returns `None`
+nonnegative floating point number. This returns `None`
 
 `roll(self, n = 1)`
 - Generates and returns a `list` of outcomes from the `Die`'s
