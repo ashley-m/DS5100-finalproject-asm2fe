@@ -1,6 +1,6 @@
 # Title: Monte Carlo Simulation
-## Version 1.0.2
-# Author: Ashley Miller
+### Version 1.0.2
+### Author: Ashley Miller
 
 ## Description:
 This is a simulation that allows for customizable data randomization and 
