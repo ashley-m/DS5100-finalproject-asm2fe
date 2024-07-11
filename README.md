@@ -46,8 +46,8 @@ combination_data = yahtzee_analysis.combo_count()
 # API description
 ## `Die`
 `__init__(self, sides)`
-- `Die` takes an array and raises errors if the argument passed is
-not a NumPy array or if the faces are not unique.
+- `Die` takes an `array` and raises errors if the argument passed is
+not a NumPy `array` or if the faces are not unique.
 - The returned `Die` object has faces with default weights of 1.
 
 `adj_wt(self, face, wt)`
@@ -56,34 +56,34 @@ passed. This will result in an error if the value passed is not a
 floating point number. This returns `None`
 
 `roll(self, n = 1)`
-- Generates and returns a Python list of outcomes from the `Die`'s
-faces biased using the weight values. May be passed an argument
-to indicate the number of times the die is to be rolled, but the
+- Generates and returns a `list` of outcomes from the `Die`'s
+faces biased using the weight values. May be passed an integer
+to indicate the number of times it is to be rolled, but the
 default is to roll once.
 
 `get_state(self)`
-- Returns a pandas DataFrame containing the column of weights assigned to
+- Returns a pandas `DataFrame` containing the column of weights assigned to
 the corresponding faces, which comprise the indices. Takes no arguments
 
 ## `Game`
 `__init__(self, dice_list)`
-- `Game` takes a Python list of similar dice - they should all have
-the same faces, though the weight biases may be different.
+- `Game` takes a `list` of similar dice - they should all have the same
+faces, though the weight biases may be different.
 - This returns a `Game` object
 
 `play(self, i=1)`
 - Takes an integer and instructs the `Game` object to generate results
 the same number of times. This method only generates one roll if no
 argument is passed.
-- Returns a wide format DataFrame where each column corresponds to
+- Returns a wide format `DataFrame` where each column corresponds to
 the `Die` in the `Game`'s set and the roll numbers are the indices.
 The cells contain the face result of each roll.
 
 `last_play(self, width='WIDE')`
-- Returns a copy of the DataFrame containing the results. Takes a string
+- Returns a copy of the `DataFrame` containing the results. Takes a `string`
 argument which specifies narrow or wide (this is not case sensitive).
 - Defaults to wide format as described above, but the narrow
-version has a MultiIndex where the roll number is the first index
+version has a `MultiIndex` where the roll number is the first index
 and the `Die` number is the second. The single column contains
 the face results.
 
@@ -93,22 +93,22 @@ the face results.
 
 `jackpot(self)`
 - Returns an integer count of how many rolls resulted in all `Die` in
-the game landing on the same face. Takes no arguments
+the `Game` landing on the same face. Takes no arguments.
 
 `face_roll(self)`
-- Returns a DataFrame containing the results from the `Game`'s last play.
+- Returns a `DataFrame` containing the results from the `Game`'s last play.
 The index represents the roll number and the face values are the column
 features. Each cell of the columns contain the result values for each roll.
 Takes no arguments.
 
 `combo_count(self)`
-- Returns a DataFrame where the MultiIndex represents the distinct face
+- Returns a `DataFrame` with a `MultiIndex` that represents the distinct face
 combinations found in the results - the order of faces is not considered.
 The column has the associated counts for the combination represented in the
 index. Takes no arguments.
 
 `perm_count(self)`
-- Returns a DataFrame where the MultiIndex represents the distinct face
+- Returns a `DataFrame` where the `MultiIndex` represents the distinct face
 permutations found in the results - the order is taken into consideration.
 The column has the associated counts for the permutation represented in the
 index. Takes no arguments.
