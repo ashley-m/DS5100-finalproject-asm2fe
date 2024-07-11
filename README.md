@@ -49,7 +49,7 @@ not a NumPy `array` or if the faces are not unique.
 `adj_wt(self, face, wt)`
 - Adjusts the weight of the selected face with the argument
 passed. This will result in an error if the value passed is not a
-nonnegative floating point number. This returns `None`
+nonnegative floating point number. This returns `None`.
 
 `roll(self, n = 1)`
 - Generates and returns a `list` of outcomes from the `Die`'s
@@ -59,13 +59,13 @@ default is to roll once.
 
 `get_state(self)`
 - Returns a pandas `DataFrame` containing the column of weights assigned to
-the corresponding faces, which comprise the indices. Takes no arguments
+the corresponding faces, which comprise the indices. Takes no arguments.
 
 ## `Game`
 `__init__(self, dice_list)`
 - `Game` takes a `list` of similar dice - they should all have the same
 faces, though the weight biases may be different.
-- This returns a `Game` object
+- This returns a `Game` object.
 
 `play(self, i=1)`
 - Takes an integer and instructs the `Game` object to generate results
