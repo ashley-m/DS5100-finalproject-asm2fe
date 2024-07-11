@@ -94,7 +94,7 @@ class MonteCarloTestSuite(unittest.TestCase):
         ana = Analyzer(g3)
         cc = ana.combo_count()
         # print('\n', g3.last_play('wide'), '\n')
-        # print(cc)
+        # print('\n', cc)
         self.assertTrue(isinstance(cc, pd.DataFrame))
 
     def test_12_perm(self):
@@ -106,7 +106,7 @@ class MonteCarloTestSuite(unittest.TestCase):
         ana = Analyzer(g3)
         cc = ana.perm_count()
         # print('\n', g3.last_play('wide'), '\n')
-        # print(cc)
+        # print('\n', cc)
         self.assertTrue(isinstance(cc, pd.DataFrame))
 
 if __name__ == '__main__':

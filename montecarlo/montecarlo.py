@@ -43,16 +43,15 @@ class Die:
         '''
         try:
             if not isinstance(sides, np.ndarray):
-                raise TypeError('Not an array')
-            # if not (isinstance(sides.dtype.type, np.str_) or isinstance(sides.dtype.type, np.number)):
-            #     raise TypeError('Sides not strings or numbers')
+                raise TypeError('not an array')
             if len(set(sides)) != len(sides):
-                raise ValueError('Faces must be unique')
+                raise ValueError('faces must be unique')
             
             self.weight = np.ones(len(sides))
             self._data = pd.DataFrame(data= self.weight, index= sides)
+            self._data.rename_axis('face', axis='columns', inplace=True)
         except (TypeError, ValueError) as e:
-            print('Error: ', e) 
+            print('error: ', e) 
 
     def adj_wt(self, face, wt):
         '''
@@ -68,19 +67,19 @@ class Die:
         '''
         try:
             if face not in self._data.index:
-                raise IndexError('Invalid face')
-            elif not isinstance(wt, Number):
-                raise TypeError('Invalid reassignment weight')
+                raise IndexError('invalid face')
+            elif (not isinstance(float(wt), float)) or wt<0:
+                raise TypeError('invalid reassignment weight')
             else:
                 self._data.loc[face] = wt
 
         except (IndexError, TypeError) as e:
-            print('Error: ', e)
+            print('error: ', e)
 
     def roll(self, n = 1):
         '''
     -   Takes a parameter of how many times the die is to be rolled;
-        defaults to $1$.
+        defaults to 1.
 
     -   This is essentially a random sample with replacement, from the
         private die data frame, that applies the weights.
@@ -120,10 +119,6 @@ class Game:
         '''
     -   Takes a single parameter, a list of already instantiated similar
         dice.
-
-    -   Ideally this would check if the list actually contains Die objects
-        and that they all have the same faces, but this is not required for
-        this project.
         '''
         self._dice_set = dice_list
 
@@ -134,18 +129,18 @@ class Game:
 
     -   Saves the result of the play to a private data frame.
 
-    -   The data frame should be in wide format, i.e. have the roll number
+    -   The data frame is in wide format, it has the roll number
         as a named index, columns for each die number (using its list index
         as the column name), and the face rolled in that instance in each
         cell.
         '''
+        if not isinstance(i, int):
+            raise TypeError('invalid number of plays')
         ls = []
         for d in self._dice_set:
             ls.append(d.roll(i))
-        # self._result_frame = pd.DataFrame([d.roll(i) for d in self._dice_set]).T
         self._result_frame = pd.DataFrame(ls)
         self._result_frame = self._result_frame.T
-        # print([i for i in range(1, len(self._result_frame.index)+1)])
         self._result_frame.index = [i for i in range(1, len(self._result_frame.index)+1)]
         self._result_frame.columns = [j for j in range(1, len(self._result_frame.columns)+1)]
         self._result_frame.index.name = 'roll #'
@@ -200,7 +195,6 @@ class Analyzer:
         '''
         wins = 0
         multi_fr = self._game.last_play('wide')
-        # print(next(multi_fr.iterrows())[1]) 
         
         # iterrows returns list of tuples so next()[1][1] 
         # returns first row of subframe corresponding to iteration
@@ -250,7 +244,7 @@ class Analyzer:
 
     -   Returns a data frame of results.
 
-    -   The data frame should have an MultiIndex of distinct combinations
+    -   The data frame will have a MultiIndex of distinct combinations
         and a column for the associated counts.
         '''
         pf = self._game.last_play()
@@ -260,10 +254,10 @@ class Analyzer:
         #     3:['a','b','b']
         # }
         # pf = pd.DataFrame(df)
-        ff = pf.apply(lambda x: tuple(sorted(x)), axis=1).value_counts()
-        ff.index = pd.MultiIndex.from_tuples(ff.index)
-        ff = ff.reset_index(name='count')
-        return ff
+        count = pf.apply(lambda x: tuple(sorted(x)), axis=1).value_counts()
+        com_df = pd.DataFrame(count)
+        com_df.index = pd.MultiIndex.from_tuples(com_df.index)
+        return com_df
 
     def perm_count(self):
         '''
@@ -274,7 +268,7 @@ class Analyzer:
 
     -   Returns a data frame of results.
 
-    -   The data frame should have an MultiIndex of distinct permutations
+    -   The data frame will have a MultiIndex of distinct permutations
         and a column for the associated counts.
         '''
 
@@ -286,8 +280,8 @@ class Analyzer:
         # }
         # pf = pd.DataFrame(df)
         # print('\n', pf)
-        ff = pf.apply(lambda x: tuple(x), axis=1).value_counts()
-        ff.index = pd.MultiIndex.from_tuples(ff.index)
-        ff = ff.reset_index(name='count')
-        return ff
+        count = pf.apply(lambda x: tuple(x), axis=1).value_counts()
+        perm_df = pd.DataFrame(count)
+        perm_df.index = pd.MultiIndex.from_tuples(perm_df.index)
+        return perm_df
 
