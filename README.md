@@ -28,12 +28,8 @@ You can instruct the game to play any number of times, and it will throw
 the dice as a group to generate each outcome. A `Game` can access their
 last play (and only their last play) using the class method `last_play`.
 `Analyzer` objects are created with a `Game` argument to allow for analysis
-of the game state data. The `face_roll` method returns the counts of each
-face from each roll. The `jackpot` counts how many times the `Die` objects
-rolls resulted in all matching faces. The `perm_count` and `combo_count` 
-methods return the number of permutation and combinations for the results,
-respectively. The following code would generate the four types of analyses
-of which `montecarlo` package is capable.
+of the game state data. The following code would generate the four types 
+of analyses of which `montecarlo` package is capable.
 
 ```{python}
 yahtzee_analysis = Analyzer(yahtzee)
