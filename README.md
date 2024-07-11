@@ -1,5 +1,5 @@
-# Title: Monte Carlo Simulation
-### Version 1.0.2
+# Monte Carlo Simulation
+#### Version 1.0.2
 ### Author: Ashley Miller
 
 ## Description:
